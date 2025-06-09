@@ -2,7 +2,7 @@ import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestj
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { ResponseMessage, User } from 'src/decorator/customize';
+import { Public, ResponseMessage, User } from 'src/decorator/customize';
 import { IUser } from './interface/users.interface';
 
 @Controller('users')
@@ -12,10 +12,12 @@ export class UsersController {
   @Post()
   create(
 
-    @Body() createUserDto: CreateUserDto) {
-    return this.usersService.create(createUserDto);
+    @Body() createUserDto: CreateUserDto,
+    @User() user: IUser) {
+    return this.usersService.create(createUserDto, user);
   }
   @ResponseMessage('Fetch all user')
+  @Public()
   @Get()
   findAll(
     @Query('page') page: string,

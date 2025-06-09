@@ -1,18 +1,19 @@
 import { IUser } from 'src/users/interface/users.interface';
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateUserDto, RegisterDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { User, UserDocument } from './schemas/user.schema';
+import { User as UserM, UserDocument } from './schemas/user.schema';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { genSaltSync, hashSync, compareSync } from "bcryptjs";
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import { IResultUser } from './interface/users.interface';
 import aqp from 'api-query-params';
+import { User } from 'src/decorator/customize';
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectModel(User.name) private userModel: SoftDeleteModel<UserDocument>) { }
+  constructor(@InjectModel(UserM.name) private userModel: SoftDeleteModel<UserDocument>) { }
   hashPassword(password: string) {
 
     const salt = genSaltSync(10);
@@ -21,16 +22,20 @@ export class UsersService {
     return hash;
   }
 
-  async create(createUserDto: CreateUserDto): Promise<IResultUser> {
+  async create(
+    createUserDto: CreateUserDto,
+    @User() userCre: IUser
+  ): Promise<IResultUser> {
     const { email, password, name, age, gender, address, company, role } = createUserDto;
     const hashedPassword = this.hashPassword(password);
 
     const existingUser = await this.userModel.findOne({
       email,
     })
+    console.log('existingUser', existingUser);
     if (existingUser) {
 
-      throw new Error('User already exists');
+      throw new BadRequestException(`Email ${email} User already exists`);
 
     } else {
       const user = await this.userModel.create({
@@ -40,9 +45,12 @@ export class UsersService {
         age,
         gender,
         address,
-        createAt: new Date(),
         company,
-        role
+        role,
+        createdBy: {
+          id: userCre._id,
+          email: userCre.email,
+        }
       });
 
       return {
@@ -54,16 +62,16 @@ export class UsersService {
   }
 
 
-  async createRegister(createUserDto: RegisterDto): Promise<IResultUser> {
+  async createRegister(createUserDto: RegisterDto): Promise<any> {
     const { email, password, name, age, gender, address } = createUserDto;
     const hashedPassword = this.hashPassword(password);
 
     const existingUser = await this.userModel.findOne({
       email,
-    })
+    });
     if (existingUser) {
 
-      throw new Error('User already exists');
+      throw new BadRequestException(` Email ${email} User already exists`);
 
     } else {
       const user = await this.userModel.create({
@@ -74,16 +82,11 @@ export class UsersService {
         role: 'USER',
         gender,
         address,
-        createAt: new Date(),
 
 
       });
 
-      return {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-      };
+      return user;
     }
 
   }
@@ -91,6 +94,7 @@ export class UsersService {
   async findAll(page: number, limit: number, qs: string) {
 
     const { filter, sort, projection, population, skip } = aqp(qs);
+    filter.isDeleted = false;
     delete filter.page;
     delete filter.limit;
 
@@ -103,6 +107,7 @@ export class UsersService {
 
 
     const result = await this.userModel.find(filter)
+      .select('-password')
       .skip(offset)
       .limit(defaulLimit)
       .sort(sort as any)

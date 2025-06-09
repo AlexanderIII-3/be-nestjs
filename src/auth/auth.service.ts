@@ -1,13 +1,15 @@
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
 import { JwtService } from '@nestjs/jwt';
-import { IUser, ICreateUser } from 'src/users/interface/users.interface';
-
+import { IUser, ICreateUser, IResultUser } from 'src/users/interface/users.interface';
+import { ConfigService } from '@nestjs/config';
+import ms from 'ms'
 @Injectable()
 export class AuthService {
 
     constructor(
         private usersService: UsersService,
+        private configService: ConfigService,
 
         private jwtService: JwtService
 
@@ -26,11 +28,7 @@ export class AuthService {
             }
         }
         return null
-        if (user && user.password === pass) {
-            const { password, ...result } = user;
-            return result;
-        }
-        return null;
+
     }
     async login(user: IUser) {
         const { _id, name, email, role } = user;
@@ -42,31 +40,49 @@ export class AuthService {
             email,
             role
         };
+        const refresh_token = this.createRefreshToken(payload)
         return {
             access_token: this.jwtService.sign(payload),
-            _id,
-            name,
-            email,
-            role
+            refresh_token,
+            user: {
+
+                _id,
+                name,
+                email,
+                role
+            }
+
         };
 
     }
-    async register(user: ICreateUser): Promise<any> {
+    async register(user: ICreateUser): Promise<IResultUser> {
         const { email, password, name, age, gender, address } = user;
-        const existingUser = await this.usersService.findOneByUserName(email);
-        if (existingUser) {
-            throw new UnauthorizedException('User already exists');
-        } else {
-            const newUser = await this.usersService.createRegister({
-                email,
-                password,
-                name,
-                age,
-                gender,
-                address,
-                createAt: new Date(),
-            });
-            return newUser;
-        }
+
+        const newUser = await this.usersService.createRegister({
+            email,
+            password,
+            name,
+            age,
+            gender,
+            address,
+            createAt: new Date(),
+        });
+        return {
+            _id: newUser._id,
+            name: newUser.name,
+            email: newUser.email,
+        };
+
+    }
+
+    createRefreshToken = (payload: any) => {
+        const refresh_token = this.jwtService.sign(payload, {
+            secret: this.configService.get<string>("JWT_REFRESH_TOKEN_SECRET"),
+            expiresIn: this.configService.get<string>("JWT_REFRESH_EXPIRE"),
+
+        })
+        return refresh_token
+
+
     }
 }
