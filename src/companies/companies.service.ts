@@ -35,35 +35,32 @@ export class CompaniesService {
 
   }
   async findAll(page: number, limit: number, qs: string) {
+    const { filter, sort, projection, population } = aqp(qs);
+    delete filter.current;
+    delete filter.pageSize;
 
-    const { filter, sort, projection, population, skip } = aqp(qs);
-    delete filter.page;
-    delete filter.limit;
+    const offset = (page - 1) * limit;
+    const defaultLimit = limit || 10;
 
+    const totalItems = await this.companyModel.countDocuments(filter); // tối ưu hơn
+    const totalPages = Math.ceil(totalItems / defaultLimit);
 
-    let offset = (page - 1) * limit;;
-    let defaulLimit = limit ? limit : 10;
-
-    const totalItems = (await this.companyModel.find(filter)).length;
-    const totalPages = Math.ceil(totalItems / limit);
-
-
-    const result = await this.companyModel.find(filter)
+    const companies = await this.companyModel.find(filter)
       .skip(offset)
-      .limit(defaulLimit)
+      .limit(defaultLimit)
       .sort(sort as any)
       .populate(population)
       .exec();
+
     return {
       meta: {
-        current: page, //trang hiện tại
-        pageSize: limit, //số lượng bản ghi đã lấy
-        pages: totalPages,  //tổng số trang với điều kiện query
-        total: totalItems // tổng số phần tử (số bản ghi)
+        current: page,
+        pageSize: defaultLimit,
+        pages: totalPages,
+        total: totalItems
       },
-      result //kết quả query
-    }
-
+      result: companies
+    };
   }
 
   findOne(id: number) {

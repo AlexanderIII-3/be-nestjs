@@ -1,8 +1,7 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
-import { Public, ResponseMessage, User } from 'src/decorator/customize';
+import { CreateUserDto, UpdateUserDto } from './dto/create-user.dto';
+import { Public, ResponseMessage, SkipInterceptor, User } from 'src/decorator/customize';
 import { IUser } from './interface/users.interface';
 
 @Controller('users')
@@ -20,8 +19,8 @@ export class UsersController {
   @Public()
   @Get()
   findAll(
-    @Query('page') page: string,
-    @Query('limit') limit: string,
+    @Query('current') page: string,
+    @Query('pageSize') limit: string,
     @Query() qs: string) {
 
     return this.usersService.findAll(+page, +limit, qs);
@@ -39,7 +38,7 @@ export class UsersController {
     @Body() req,
     @User() user: IUser,
 
-    @Body() updateUserDto: CreateUserDto) {
+    @Body() updateUserDto: UpdateUserDto) {
 
     console.log('req', user);
     return this.usersService.update(req._id, updateUserDto, user);

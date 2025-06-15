@@ -1,5 +1,5 @@
 import { RegisterDto } from 'src/users/dto/create-user.dto';
-import { Public, ResponseMessage, User } from './../decorator/customize';
+import { Public, ResponseMessage, SkipInterceptor, User } from './../decorator/customize';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './local-auth.guard';
 import { Controller, Post, UseGuards, Get, Body, Res, Req } from '@nestjs/common';
@@ -11,7 +11,7 @@ export class AuthController {
     constructor(
         private authService: AuthService
     ) { }
-
+    @SkipInterceptor()
     @Public()
     @UseGuards(LocalAuthGuard)
     @Post('/login')
@@ -35,7 +35,6 @@ export class AuthController {
     ) {
         return { user }
     }
-
     @Public()
     @ResponseMessage("Get user by refresh token")
     @Get('/refresh')
@@ -45,6 +44,17 @@ export class AuthController {
     ) {
         const refreshToken = request.cookies["refresh_token"]
         return this.authService.processNewToken(refreshToken, response)
+    }
+
+    @ResponseMessage("Logout")
+    @Post('/logout')
+    handleLogout(
+        @User() user: IUser,
+        @Res({ passthrough: true }) response: Response
+
+    ) {
+
+        return this.authService.handleLogoutService(user, response)
     }
 
 }

@@ -1,7 +1,6 @@
 import { IUser } from 'src/users/interface/users.interface';
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { CreateUserDto, RegisterDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { CreateUserDto, RegisterDto, UpdateUserDto } from './dto/create-user.dto';
 import { User as UserM, UserDocument } from './schemas/user.schema';
 import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
@@ -95,8 +94,8 @@ export class UsersService {
 
     const { filter, sort, projection, population, skip } = aqp(qs);
     filter.isDeleted = false;
-    delete filter.page;
-    delete filter.limit;
+    delete filter.current;
+    delete filter.pageSize;
 
 
     let offset = (page - 1) * limit;;
@@ -143,25 +142,16 @@ export class UsersService {
 
     try {
       return this.userModel.findOne(
-
         { email: username }
-
       );
     } catch (error) {
       console.log(error);
-
     }
-
   }
   isValidPasswor(hash: string, password: string): boolean {
-
-
     return compareSync(password, hash); // false
-
-
-
   }
-  async update(id: string, updateUserDto: CreateUserDto, update: IUser) {
+  async update(id: string, updateUserDto: UpdateUserDto, update: IUser) {
     console.log(update)
     return this.userModel.updateOne(
       { _id: id },
@@ -169,42 +159,32 @@ export class UsersService {
         ...updateUserDto,
         updateAt: new Date(),
         updatedBy: {
-          _id: update._id,
+          // _id: update._id,
           email: update.email,
         },
-
       },
-
-
     )
   }
 
   async remove(id: string) {
-
     try {
       return this.userModel.softDelete({ _id: id });
     } catch (error) {
       console.log(error);
     }
-
   }
 
   async updateUserRefreshToken(refreshToken: string, _id: object) {
     return await this.userModel.updateOne(
       { _id },
       { refreshToken }
-
     )
-
-
   }
 
   async findUserByRefreshToken(refreshToken: string) {
     return await this.userModel.findOne(
       { refreshToken }
-
     )
-
-
   }
+
 }

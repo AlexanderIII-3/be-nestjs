@@ -10,7 +10,7 @@ import { TransformInterceptor } from './core/transform.interceptor';
 import cookieParser from 'cookie-parser';
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule, { cors: true });
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const configService = app.get(ConfigService);
   const reflector = app.get(Reflector);
   app.useGlobalGuards(new JwtAuthGuard(reflector));
@@ -19,6 +19,7 @@ async function bootstrap() {
   app.useStaticAssets(join(__dirname, '..', 'public'));
   app.setBaseViewsDir(join(__dirname, '..', 'views'));
   app.useGlobalPipes(new ValidationPipe());
+
   app.setViewEngine('ejs');
   //config versioning
   app.setGlobalPrefix('api');
@@ -30,6 +31,12 @@ async function bootstrap() {
     defaultVersion: ['1', '2']
 
   });
-  await app.listen(configService.get<string>('PORT') || 3000);
+  app.enableCors({
+    origin: true,
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    preflightContinue: false,
+    credentials: true,
+  });
+  await app.listen(configService.get<string>('PORT') || 8000);
 }
 bootstrap();

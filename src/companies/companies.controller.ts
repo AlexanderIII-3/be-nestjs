@@ -16,12 +16,16 @@ export class CompaniesController {
   }
   @ResponseMessage('Fetch all companies')
   @Get()
-  findAll(
-    @Query('page') page: string,
-    @Query('limit') limit: string,
-    @Query() qs: string) {
-
-    return this.companiesService.findAll(+page, +limit, qs);
+  async findAll(
+    @Query('current') page: string,
+    @Query('pageSize') limit: string,
+    @Query() qs: string
+  ) {
+    const { result, meta } = await this.companiesService.findAll(+page, +limit, qs);
+    return {
+      result,
+      meta
+    };
   }
 
   @Get(':id')

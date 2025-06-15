@@ -14,3 +14,6 @@ export const User = createParamDecorator(
 );
 export const ResponseMessage = (message: string) =>
     SetMetadata(RESPONSE_MESSAGE, message);
+
+export const SKIP_TRANSFORM_KEY = 'skipTransform';
+export const SkipInterceptor = () => SetMetadata(SKIP_TRANSFORM_KEY, true);

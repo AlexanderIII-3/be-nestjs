@@ -55,3 +55,29 @@ export class RegisterDto {
 
 
 }
+export class UpdateUserDto {
+    @IsEmail()
+    @IsNotEmpty({ message: 'Email is required' })
+    email: string;
+
+    @IsNotEmpty({ message: 'Name is required' })
+    name: string;
+    phone?: string;
+    @IsNotEmpty({ message: 'Age must be a number' })
+    age: number;
+    @IsNotEmpty({ message: 'Role must be a string' })
+    role: string;
+
+    @IsNotEmptyObject()
+    @IsObject()
+    @ValidateNested()
+    @Type(() => Company)
+    company?: Company;
+
+    address?: string;
+    gender?: string;
+    createAt: Date;
+    updateAt: Date;
+
+
+}
