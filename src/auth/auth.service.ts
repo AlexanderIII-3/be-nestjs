@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { IUser, ICreateUser, IResultUser } from 'src/users/interface/users.interface';
@@ -68,7 +68,7 @@ export class AuthService {
 
     }
     async register(user: ICreateUser): Promise<IResultUser> {
-        const { email, password, name, age, gender, address } = user;
+        const { email, password, name, age, gender, address, role } = user;
 
         const newUser = await this.usersService.createRegister({
             email,
@@ -77,6 +77,7 @@ export class AuthService {
             age,
             gender,
             address,
+            role,
             createAt: new Date(),
         });
         return {
@@ -96,5 +97,55 @@ export class AuthService {
         return refresh_token
 
 
+    }
+    async processNewToken(refreshToken: string, response: Response) {
+        try {
+            // this.jwtService.verify(refreshToken, {
+            //     secret: this.configService.get<string>("JWT_REFRESH_TOKEN_SECRET")
+
+            // })
+            let user = await this.usersService.findUserByRefreshToken(refreshToken)
+            if (user) {
+                // update refresh token
+                const { _id, name, email, role } = user;
+                const payload = {
+                    sub: "refresh token",
+                    iss: "from server",
+                    _id,
+                    name,
+                    email,
+                    role
+                };
+                // create refresh token
+                const refresh_token = this.createRefreshToken(payload)
+                // set refresh token for user
+                await this.usersService.updateUserRefreshToken(refresh_token, _id)
+                //set cookies refresh token
+                const maxAge = parseInt(this.configService.get<string>("JWT_REFRESH_EXPIRE") ?? "86400000", 10);
+                response.clearCookie('refresh_token')
+                response.cookie('refresh_token', refresh_token, {
+                    httpOnly: true,
+                    maxAge,
+                });
+                return {
+                    access_token: this.jwtService.sign(payload),
+                    refresh_token,
+                    user: {
+
+                        _id,
+                        name,
+                        email,
+                        role
+                    }
+
+                };
+
+            } else {
+                throw new BadRequestException('Refresh token không hợp lệ')
+
+            }
+        } catch (error) {
+            throw new BadRequestException('Refresh token không hợp lệ')
+        }
     }
 }

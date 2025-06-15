@@ -45,6 +45,7 @@ export class RegisterDto {
     @IsNotEmpty({ message: 'Name is required' })
     name: string;
     phone?: string;
+    role?: string;
     @IsNotEmpty({ message: 'Age must be a number' })
     age?: number;
     address?: string;
