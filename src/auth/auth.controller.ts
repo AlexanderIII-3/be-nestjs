@@ -11,15 +11,14 @@ export class AuthController {
     constructor(
         private authService: AuthService
     ) { }
-    @SkipInterceptor()
     @Public()
-    @UseGuards(LocalAuthGuard)
+    // @UseGuards(LocalAuthGuard)
     @Post('/login')
     handleLogin(
         @Req() req,
         @Res({ passthrough: true }) response: Response
     ) {
-        return this.authService.login(req.user, response);
+        return this.authService.login(req.query, response);
 
     }
     @Public()

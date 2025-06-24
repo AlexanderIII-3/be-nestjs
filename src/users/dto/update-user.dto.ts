@@ -5,3 +5,5 @@ export class UpdateUserDto extends OmitType(CreateUserDto, ['password'] as const
 
     _id: string;
 }
+
+

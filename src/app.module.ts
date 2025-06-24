@@ -10,6 +10,7 @@ import * as Joi from 'joi';
 import { AuthService } from './auth/auth.service';
 import { CompaniesModule } from './companies/companies.module';
 import { AuthController } from './auth/auth.controller';
+import { JobsModule } from './jobs/jobs.module';
 @Module({
   imports: [
     MongooseModule.forRootAsync({
@@ -51,7 +52,9 @@ import { AuthController } from './auth/auth.controller';
 
     AuthModule,
 
-    CompaniesModule
+    CompaniesModule,
+
+    JobsModule
 
   ],
 

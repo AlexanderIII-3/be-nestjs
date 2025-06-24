@@ -40,7 +40,6 @@ export class UsersController {
 
     @Body() updateUserDto: UpdateUserDto) {
 
-    console.log('req', user);
     return this.usersService.update(req._id, updateUserDto, user);
   }
   @ResponseMessage('Delete user')

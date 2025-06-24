@@ -32,7 +32,9 @@ export class AuthService {
         return null
 
     }
-    async login(user: IUser, response: Response): Promise<any> {
+    async login(account: any, response: Response): Promise<any> {
+
+        let user = await this.validateUser(account.username, account.password);
         const { _id, name, email, role } = user;
         const payload = {
             sub: "token login",
