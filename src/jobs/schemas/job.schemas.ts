@@ -55,7 +55,7 @@ export class Job {
     @Prop({ type: Object })
     updatedBy: {
 
-        _id: mongoose.Schema.Types.ObjectId;
+        id: mongoose.Schema.Types.ObjectId;
         email: string;
     }
 
@@ -75,7 +75,7 @@ export class Job {
     updatedAt?: Date;
 
     @Prop({ default: false })
-    is_deleted?: boolean;
+    isDeleted?: boolean;
 
     @Prop({ type: Date, default: null })
     deletedAt?: Date | null;

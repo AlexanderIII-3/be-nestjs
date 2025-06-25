@@ -4,8 +4,8 @@ import {
     ExecutionContext,
     CallHandler,
 } from '@nestjs/common';
-import { Observable } from 'rxjs';
-import { map } from 'rxjs/operators';
+import { Observable, throwError } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
 import { Reflector } from '@nestjs/core';
 
 export interface Response<T> {
@@ -15,7 +15,7 @@ export interface Response<T> {
 }
 
 @Injectable()
-export class TransformInterceptor<T> implements NestInterceptor<T, Response<T>> {
+export class TransformInterceptor<T> implements NestInterceptor<T, any> {
     constructor(private reflector: Reflector) { }
 
     intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
@@ -27,7 +27,6 @@ export class TransformInterceptor<T> implements NestInterceptor<T, Response<T>> 
                 const statusCode = context.switchToHttp().getResponse().statusCode;
                 const message = this.reflector.get<string>('RESPONSE_MESSAGE', context.getHandler()) || '';
 
-                // Nếu data đã có dạng { result, meta }, thì gói thẳng vào data
                 if (
                     typeof data === 'object' &&
                     data !== null &&
@@ -37,20 +36,18 @@ export class TransformInterceptor<T> implements NestInterceptor<T, Response<T>> 
                     return {
                         statusCode,
                         message,
-                        data, // dùng nguyên object đã có { result, meta }
+                        data,
                     };
                 }
 
-                // Trường hợp khác: gói lại theo cấu trúc chuẩn
                 return {
                     statusCode,
                     message,
-                    data: {
-                        result: data,
-                        meta: {},
-                    },
+                    data,
+                    meta: {},
                 };
-            }),
+            })
+            // KHÔNG dùng catchError ở đây!
         );
     }
 }

@@ -23,16 +23,24 @@ export class JobsController {
 
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.jobsService.findOne(+id);
+    return this.jobsService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateJobDto: UpdateJobDto) {
-    return this.jobsService.update(+id, updateJobDto);
+  @UseGuards(JwtAuthGuard)
+  update(
+    @Param('id') id: string,
+    @Body() updateJobDto: UpdateJobDto,
+    @User() user: IUser
+  ) {
+    return this.jobsService.update(id, updateJobDto, user);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.jobsService.remove(+id);
+  @UseGuards(JwtAuthGuard)
+  remove(@Param('id') id: string,
+    @User() user: IUser
+  ) {
+    return this.jobsService.remove(id, user);
   }
 }

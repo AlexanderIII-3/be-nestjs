@@ -19,10 +19,9 @@ export class AuthService {
 
     async validateUser(username: string, pass: string): Promise<any> {
         const user = await this.usersService.findOneByUserName(username);
-
         if (user) {
 
-            const isValid = this.usersService.isValidPasswor(user.password, pass);
+            const isValid = this.usersService.isValidPassword(user.password, pass);
 
             if (isValid === true) {
 
@@ -33,7 +32,6 @@ export class AuthService {
 
     }
     async login(account: any, response: Response): Promise<any> {
-
         let user = await this.validateUser(account.username, account.password);
         const { _id, name, email, role } = user;
         const payload = {

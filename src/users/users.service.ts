@@ -31,7 +31,6 @@ export class UsersService {
     const existingUser = await this.userModel.findOne({
       email,
     })
-    console.log('existingUser', existingUser);
     if (existingUser) {
 
       throw new BadRequestException(`Email ${email} User already exists`);
@@ -138,17 +137,21 @@ export class UsersService {
     }
 
   }
-  findOneByUserName(username: string) {
-
+  async findOneByUserName(username: string) {
     try {
-      return this.userModel.findOne(
-        { email: username }
-      );
+      const user = await this.userModel.findOne({
+        email: username,
+        isDeleted: false,
+      });
+      if (!user) {
+        throw new BadRequestException(`User with email ${username} not found`);
+      }
+      return user;
     } catch (error) {
       console.log(error);
     }
   }
-  isValidPasswor(hash: string, password: string): boolean {
+  isValidPassword(hash: string, password: string): boolean {
     return compareSync(password, hash); // false
   }
   async update(id: string, updateUserDto: UpdateUserDto, update: IUser) {
@@ -159,7 +162,7 @@ export class UsersService {
         ...updateUserDto,
         updateAt: new Date(),
         updatedBy: {
-          // _id: update._id,
+          _id: update._id,
           email: update.email,
         },
       },
