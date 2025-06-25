@@ -3,7 +3,7 @@ import { SetMetadata } from '@nestjs/common';
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 
 export const IS_PUBLIC_KEY = 'isPublic';
-export const RESPONSE_MESSAGE = 'response_message';
+export const RESPONSE_MESSAGE = 'RESPONSE_MESSAGE';
 export const Public = () => SetMetadata(IS_PUBLIC_KEY, true);
 
 export const User = createParamDecorator(

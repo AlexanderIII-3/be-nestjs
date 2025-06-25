@@ -1,9 +1,9 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query } from '@nestjs/common';
 import { JobsService } from './jobs.service';
 import { CreateJobDto } from './dto/create-job.dto';
 import { UpdateJobDto } from './dto/update-job.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import { User } from 'src/decorator/customize';
+import { ResponseMessage, User } from 'src/decorator/customize';
 import { IUser } from 'src/users/interface/users.interface';
 
 @Controller('jobs')
@@ -16,9 +16,14 @@ export class JobsController {
     return this.jobsService.create(createJobDto, user);
   }
 
+  @ResponseMessage('Fetch all jobs')
   @Get()
-  findAll() {
-    return this.jobsService.findAll();
+  findAll(
+    @Query('current') page: string,
+    @Query('pageSize') limit: string,
+    @Query() qs: string
+  ) {
+    return this.jobsService.findAll(+page, +limit, qs);
   }
 
   @Get(':id')

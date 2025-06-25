@@ -1,6 +1,8 @@
-import { Type } from 'class-transformer';
-import { IsString, IsInt, IsEmail, IsEmpty, IsNotEmpty, IsNotEmptyObject, IsObject, ValidateNested, IsOptional } from 'class-validator';
+import { Transform, Type } from 'class-transformer';
+import { IsString, IsInt, IsEmail, IsEmpty, IsNotEmpty, IsNotEmptyObject, IsObject, ValidateNested, IsOptional, IsDate } from 'class-validator';
+
 import mongoose from 'mongoose';
+import { IsEndDateAfterStartDate } from '../validate/validate.date';
 export class Company {
     @IsNotEmpty()
     _id: string;
@@ -33,6 +35,17 @@ export class CreateJobDto {
     level: string;
     @IsNotEmpty({ message: 'Description must be a string' })
     description: string;
+
+    @IsNotEmpty({ message: 'Start date must be a string' })
+    @Transform(({ value }) => new Date(value))
+    @IsDate({ message: 'Start date must be a valid date' })
+    startDate: Date;
+
+    @IsNotEmpty({ message: 'End date must be a string' })
+    @Transform(({ value }) => new Date(value))
+    @IsDate({ message: 'End date must be a valid date' })
+    @IsEndDateAfterStartDate({ message: 'End date must be after start date' })
+    endDate: Date;
 
     @IsOptional()
     @IsString({ message: 'Location must be a string' })
