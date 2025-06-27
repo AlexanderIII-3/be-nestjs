@@ -3,7 +3,7 @@ import { CompaniesService } from './companies.service';
 import { CreateCompanyDto } from './dto/create-company.dto';
 import { UpdateCompanyDto } from './dto/update-company.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import { ResponseMessage, User } from 'src/decorator/customize';
+import { Public, ResponseMessage, User } from 'src/decorator/customize';
 import { IUser } from 'src/users/interface/users.interface';
 
 @Controller('companies')
@@ -14,7 +14,9 @@ export class CompaniesController {
   create(@Body() createCompanyDto: CreateCompanyDto, @User() user: IUser) {
     return this.companiesService.create(createCompanyDto, user);
   }
+
   @ResponseMessage('Fetch all companies')
+  @Public()
   @Get()
   async findAll(
     @Query('current') page: string,
@@ -27,7 +29,8 @@ export class CompaniesController {
       meta
     };
   }
-
+  @Public()
+  @Public()
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.companiesService.findOne(+id);

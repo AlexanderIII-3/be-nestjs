@@ -18,7 +18,8 @@ export class Job {
     company: {
 
         _id: mongoose.Schema.Types.ObjectId;
-        email: string;
+        name: string;
+        logo: string;
     }
 
     @Prop()
@@ -64,6 +65,9 @@ export class Job {
 
     @Prop({ type: Date })
     endDate: Date;
+
+    @Prop()
+    location: string;
 
     @Prop({ default: true })
     is_active: boolean;

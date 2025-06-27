@@ -15,11 +15,10 @@ export class AuthController {
     // @UseGuards(LocalAuthGuard)
     @Post('/login')
     handleLogin(
-        @Req() req,
+        @Body() user: any,
         @Res({ passthrough: true }) response: Response
     ) {
-        return this.authService.login(req.query, response);
-
+        return this.authService.login(user, response);
     }
     @Public()
     @Post('/register')

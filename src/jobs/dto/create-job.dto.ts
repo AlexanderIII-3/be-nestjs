@@ -47,9 +47,10 @@ export class CreateJobDto {
     @IsEndDateAfterStartDate({ message: 'End date must be after start date' })
     endDate: Date;
 
+    @IsNotEmpty()
     @IsOptional()
     @IsString({ message: 'Location must be a string' })
-    location?: string;
+    location: string;
 
     createdAt: Date;
     updatedAt: Date;

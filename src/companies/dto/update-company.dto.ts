@@ -3,8 +3,9 @@ import { CreateCompanyDto } from './create-company.dto';
 
 export class UpdateCompanyDto extends PartialType(CreateCompanyDto) {
 
-    name: string;
-    address: string;
+    name?: string;
+    address?: string;
     description?: string;
+    logo?: string;
 
 }

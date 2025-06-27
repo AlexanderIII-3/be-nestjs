@@ -17,7 +17,7 @@ export class JobsService {
       const jobExist = await this.jobModel.findOne({
         name: createJobDto.name
       })
-      if (!jobExist) {
+      if (jobExist) {
         throw new BadRequestException('Job already exists');
       } else {
 
