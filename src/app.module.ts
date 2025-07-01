@@ -12,6 +12,7 @@ import { CompaniesModule } from './companies/companies.module';
 import { AuthController } from './auth/auth.controller';
 import { JobsModule } from './jobs/jobs.module';
 import { FilesModule } from './files/files.module';
+import { ResumesModule } from './resumes/resumes.module';
 @Module({
   imports: [
     MongooseModule.forRootAsync({
@@ -57,7 +58,9 @@ import { FilesModule } from './files/files.module';
 
     JobsModule,
 
-    FilesModule
+    FilesModule,
+
+    ResumesModule
 
   ],
 

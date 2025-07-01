@@ -1,7 +1,5 @@
 
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { strict } from 'assert';
-import { string } from 'joi';
 import mongoose, { Date, HydratedDocument } from 'mongoose';
 
 export type UserDocument = HydratedDocument<User>;

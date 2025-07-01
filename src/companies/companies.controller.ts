@@ -30,10 +30,9 @@ export class CompaniesController {
     };
   }
   @Public()
-  @Public()
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.companiesService.findOne(+id);
+    return this.companiesService.findOne(id);
   }
 
   @UseGuards(JwtAuthGuard)

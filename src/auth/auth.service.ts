@@ -31,7 +31,6 @@ export class AuthService {
 
     }
     async login(account: any, response: Response): Promise<any> {
-        console.log("account", account);
         let user = await this.validateUser(account.username, account.password);
         const { _id, name, email, role } = user;
         const payload = {
