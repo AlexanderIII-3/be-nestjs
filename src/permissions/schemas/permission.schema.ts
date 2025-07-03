@@ -1,71 +1,41 @@
-
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Date, HydratedDocument } from 'mongoose';
 
-export type JobDocument = HydratedDocument<Job>;
+export type PermissionDocument = HydratedDocument<Permission>;
 
 @Schema({ timestamps: true })
-export class Job {
+export class Permission {
     _id: mongoose.Schema.Types.ObjectId;
 
     @Prop()
     name: string;
 
     @Prop()
-    skills: string[];
-
-    @Prop({ type: Object })
-    company: {
-
-        _id: mongoose.Schema.Types.ObjectId;
-        name: string;
-        logo: string;
-    }
-
+    apiPath: string;
 
     @Prop()
-    salary: number;
+    method: string;
 
     @Prop()
-    quantity: number;
-
-    @Prop()
-    level: string;
-
-    @Prop()
-    description: string;
-
-
+    module: string;
 
     @Prop({ type: Object })
     createdBy: {
-
         id: mongoose.Schema.Types.ObjectId;
         email: string;
-    }
+    };
 
     @Prop({ type: Object })
     deletedBy: {
-
         _id: mongoose.Schema.Types.ObjectId;
         email: string;
-    }
+    };
 
     @Prop({ type: Object })
     updatedBy: {
-
         id: mongoose.Schema.Types.ObjectId;
         email: string;
-    }
-
-    @Prop({ type: Date })
-    startDate: Date;
-
-    @Prop({ type: Date })
-    endDate: Date;
-
-    @Prop()
-    location: string;
+    };
 
     @Prop({ default: true })
     is_active: boolean;
@@ -83,4 +53,4 @@ export class Job {
     deletedAt?: Date | null;
 }
 
-export const JobSchema = SchemaFactory.createForClass(Job);
+export const PermissionSchema = SchemaFactory.createForClass(Permission);
