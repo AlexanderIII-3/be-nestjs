@@ -1,6 +1,8 @@
+import { Prop } from '@nestjs/mongoose';
 import { Type } from 'class-transformer';
-import { IsString, IsInt, IsEmail, IsEmpty, IsNotEmpty, IsNotEmptyObject, IsObject, ValidateNested } from 'class-validator';
+import { IsString, IsInt, IsEmail, IsEmpty, IsNotEmpty, IsNotEmptyObject, IsObject, ValidateNested, IsMongoId } from 'class-validator';
 import mongoose from 'mongoose';
+import { Role } from 'src/roles/schemas/role.schema';
 
 class Company {
     @IsNotEmpty()
@@ -21,7 +23,8 @@ export class CreateUserDto {
     @IsNotEmpty({ message: 'Age must be a number' })
     age: number;
     @IsNotEmpty({ message: 'Role must be a string' })
-    role: string;
+    @IsMongoId()
+    role: mongoose.Schema.Types.ObjectId;
 
     @IsNotEmptyObject()
     @IsObject()
@@ -29,9 +32,16 @@ export class CreateUserDto {
     @Type(() => Company)
     company!: Company;
 
+    @IsNotEmpty()
     address?: string;
+
+    @IsNotEmpty()
     gender?: string;
+
+    @IsNotEmpty()
     createAt: Date;
+
+    @IsNotEmpty()
     updateAt: Date;
 
 
@@ -40,12 +50,15 @@ export class RegisterDto {
     @IsEmail()
     @IsNotEmpty({ message: 'Email is required' })
     email: string;
+
     @IsNotEmpty({ message: 'Password is required' })
     password: string;
+
     @IsNotEmpty({ message: 'Name is required' })
     name: string;
     phone?: string;
     role?: string;
+
     @IsNotEmpty({ message: 'Age must be a number' })
     age?: number;
     address?: string;

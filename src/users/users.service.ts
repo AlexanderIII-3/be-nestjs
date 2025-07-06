@@ -123,18 +123,13 @@ export class UsersService {
 
   }
 
-  findOne(id: string): Promise<IUser> {
+  async findOne(id: string): Promise<IUser> {
+    return this.userModel.findOne(
+      { _id: id },
+    )
+      .select("-password")
+      .populate({ path: "role", select: { name: 1, _id: 1 } })
 
-    try {
-      return this.userModel.findById(
-
-        id, { password: 0 }
-
-      );
-    } catch (error) {
-      console.log(error);
-
-    }
 
   }
   async findOneByUserName(username: string) {
@@ -142,7 +137,8 @@ export class UsersService {
       const user = await this.userModel.findOne({
         email: username,
         isDeleted: false,
-      });
+      })
+        .populate({ path: "role", select: { name: 1, permissions: 1 } })
       if (!user) {
         throw new BadRequestException(`User with email ${username} not found`);
       }
@@ -169,12 +165,28 @@ export class UsersService {
     )
   }
 
-  async remove(id: string) {
-    try {
-      return this.userModel.softDelete({ _id: id });
-    } catch (error) {
-      console.log(error);
+  async remove(id: string, user: IUser) {
+    const foundUser = await this.userModel.findById({ _id: id });
+    if (foundUser.name === 'admin@gmail.com') {
+      throw new BadRequestException({
+        message: `You cannot delete an admin user`,
+        statusCode: 400,
+      });
+
     }
+    await this.userModel.updateOne(
+      { _id: id },
+      {
+        deletedBy: {
+          _id: user._id,
+          email: user.email,
+        },
+      },
+    );
+    return this.userModel.softDelete(
+      { _id: id },
+    );
+
   }
 
   async updateUserRefreshToken(refreshToken: string, _id: object) {

@@ -135,6 +135,18 @@ export class ResumesService {
       throw new BadRequestException("User not found");
     }
     const resumes = await this.resumeModel.find({ userId: user._id, isDeleted: false })
+      .sort("-createdAt")
+      .populate([
+        {
+          path: "companyId",
+          select: { name: 1 }
+        },
+        {
+          path: "jobId",
+          select: { name: 1 }
+        }
+      ]);
+
     return resumes;
   }
 }

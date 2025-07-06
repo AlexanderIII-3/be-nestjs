@@ -32,7 +32,7 @@ export class Role {
     @Prop({ type: Object })
     deletedBy: {
 
-        _id: mongoose.Schema.Types.ObjectId;
+        id: mongoose.Schema.Types.ObjectId;
         email: string;
     }
 

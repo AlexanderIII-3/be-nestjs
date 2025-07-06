@@ -14,7 +14,18 @@ export class PermissionsService {
 
   async create(permission: CreatePermissionDto, user: IUser): Promise<PermissionDocument> {
     await this.checkPermissionExist(permission.name);
-
+    const isExist = await this.permissionModel.findOne({
+      apiPath: permission.apiPath,
+      method: permission.method,
+    })
+    if (isExist) {
+      throw new BadRequestException({
+        message: 'Permission already exists',
+        value: `API Path: ${permission.apiPath}, Method: ${permission.method}`,
+        statusCode: 400,
+        error: 'Bad Request',
+      })
+    }
     let set = {
       ...permission,
       createdBy: {
@@ -43,6 +54,7 @@ export class PermissionsService {
       .limit(defaultLimit)
       .sort(sort as any)
       .populate(population)
+      .select(projection as any)
       .exec();
 
     return {
