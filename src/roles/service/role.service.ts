@@ -5,7 +5,6 @@ import { BadRequestException } from "@nestjs/common";
 import { Permission, PermissionDocument } from "src/permissions/schemas/permission.schema";
 import { ICheckRoleExists } from "../interface/role.interface";
 import { FilterQuery } from "mongoose";
-
 export class RoleService {
     constructor(
         @InjectModel(Role.name) private roleModel: SoftDeleteModel<RoleDocument>,

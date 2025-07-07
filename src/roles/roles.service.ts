@@ -7,6 +7,8 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Role, RoleDocument } from './schemas/role.schema';
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import { ICheckRoleExists } from './interface/role.interface';
+import { ADMIN_ROLE } from "src/databases/sample";
+import aqp from 'api-query-params';
 
 @Injectable()
 export class RolesService {
@@ -31,8 +33,33 @@ export class RolesService {
     }
   }
 
-  findAll() {
-    return `This action returns all roles`;
+  async findAll(page: number, limit: number, qs: string) {
+    const { filter, sort, projection, population } = aqp(qs);
+    delete filter.current;
+    delete filter.pageSize;
+
+    const offset = (page - 1) * limit;
+    const defaultLimit = limit || 10;
+
+    const totalItems = await this.roleModel.countDocuments(filter); // tối ưu hơn
+    const totalPages = Math.ceil(totalItems / defaultLimit);
+
+    const roles = await this.roleModel.find(filter)
+      .skip(offset)
+      .limit(defaultLimit)
+      .sort(sort as any)
+      .populate(population)
+      .exec();
+
+    return {
+      meta: {
+        current: page,
+        pageSize: defaultLimit,
+        pages: totalPages,
+        total: totalItems
+      },
+      result: roles
+    };
   }
   //
   async findOne(params: ICheckRoleExists & { id: string; }) {
@@ -71,7 +98,7 @@ export class RolesService {
 
   async remove(id: string, user: IUser) {
     const foundRole = await this.roleModel.findById({ _id: id });
-    if (foundRole.name === 'ADMIN') {
+    if (foundRole.name === ADMIN_ROLE) {
       throw new BadRequestException({
         message: `You cannot delete an admin role`,
         statusCode: 400,

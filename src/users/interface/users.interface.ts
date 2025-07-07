@@ -9,7 +9,16 @@ export interface IUser {
     age?: string;
     address?: string;
     gender?: string;
-    role?: string;
+    role: {
+        _id: string;
+        name: string;
+    };
+    permissions?: {
+        _id: Types.ObjectId;
+        name: string;
+        apiPath: string;
+        module: string;
+    }[];
     refreshToken?: string;
     company?: {
         _id: Types.ObjectId;

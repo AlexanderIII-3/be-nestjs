@@ -5,11 +5,13 @@ import { LocalAuthGuard } from './local-auth.guard';
 import { Controller, Post, UseGuards, Get, Body, Res, Req } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { IUser } from 'src/users/interface/users.interface';
-
+import { Role } from 'src/roles/schemas/role.schema';
+import { RolesService } from 'src/roles/roles.service';
 @Controller('auth')
 export class AuthController {
     constructor(
-        private authService: AuthService
+        private authService: AuthService,
+        private roleService: RolesService
     ) { }
     @Public()
     // @UseGuards(LocalAuthGuard)
@@ -27,10 +29,13 @@ export class AuthController {
     }
 
     @Get('/account')
-    getAcount(
+    async getAccount(
         @User() user: IUser
 
     ) {
+        const id = user.role._id as string;
+        const temp = await this.roleService.findOne({ id }) as any;
+        user.permissions = temp.permissions
         return { user }
     }
     @Public()

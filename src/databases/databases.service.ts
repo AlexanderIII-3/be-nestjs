@@ -28,41 +28,36 @@ export class DatabasesService implements OnModuleInit {
 
 
     async onModuleInit() {
-        const isInit = this.configService.get<string>("SHOULD_INIT");
-        if (Boolean(isInit)) {
-
-            const countUser = await this.userModel.count({});
-            const countPermission = await this.permissionModel.count({});
-            const countRole = await this.roleModel.count({});
-
-            //create permissions
-            if (countPermission === 0) {
+        const isInit = this.configService.get<boolean>("SHOULD_INIT");
+        if (isInit) {
+            const permissions = await this.permissionModel.count({});
+            if (permissions === 0) {
+                this.logger.log("Initializing permissions...");
                 await this.permissionModel.insertMany(INIT_PERMISSIONS);
-                //bulk create
             }
+            const roles = await this.roleModel.count({});
+            if (roles === 0) {
+                await this.roleModel.insertMany([{
+                    name: ADMIN_ROLE,
+                    description: "Super Admin Role",
+                    is_active: true,
+                    permissions: await this.permissionModel.find({}).select("_id").lean().exec(),
 
-            // create role
-            if (countRole === 0) {
-                const permissions = await this.permissionModel.find({}).select("_id");
-                await this.roleModel.insertMany([
-                    {
-                        name: ADMIN_ROLE,
-                        description: "Admin thì full quyền :v",
-                        isActive: true,
-                        permissions: permissions
-                    },
-                    {
-                        name: USER_ROLE,
-                        description: "Người dùng/Ứng viên sử dụng hệ thống",
-                        isActive: true,
-                        permissions: [] //không set quyền, chỉ cần add ROLE
-                    }
-                ]);
+                },
+                {
+                    name: USER_ROLE,
+                    description: "Người dùng/Ứng viên sử dụng hệ thống",
+                    isActive: true,
+                    permissions: []
+
+                }
+                ])
             }
+            const users = await this.userModel.count({});
+            if (users === 0) {
+                const adminRole = await this.roleModel.findOne({ name: ADMIN_ROLE }).select("_id").lean().exec();
+                const userRole = await this.roleModel.findOne({ name: USER_ROLE }).select("_id").lean().exec();
 
-            if (countUser === 0) {
-                const adminRole = await this.roleModel.findOne({ name: ADMIN_ROLE });
-                const userRole = await this.roleModel.findOne({ name: USER_ROLE })
                 await this.userModel.insertMany([
                     {
                         name: "I'm admin",
@@ -74,8 +69,8 @@ export class DatabasesService implements OnModuleInit {
                         role: adminRole?._id
                     },
                     {
-                        name: "I'm Hỏi Dân IT",
-                        email: "hoidanit@gmail.com",
+                        name: "I'm Thanhkun",
+                        email: "thanhkun@gmail.com",
                         password: this.userService.hashPassword(this.configService.get<string>("INIT_PASSWORD")),
                         age: 96,
                         gender: "MALE",
@@ -89,14 +84,15 @@ export class DatabasesService implements OnModuleInit {
                         age: 69,
                         gender: "MALE",
                         address: "VietNam",
-                        role: userRole?._id
+                        role: [userRole?._id]
                     },
                 ])
             }
 
-            if (countUser > 0 && countRole > 0 && countPermission > 0) {
+            if (users > 0 && roles > 0 && permissions > 0) {
                 this.logger.log('>>> ALREADY INIT SAMPLE DATA...');
             }
         }
     }
 }
+

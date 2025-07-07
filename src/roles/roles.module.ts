@@ -3,8 +3,8 @@ import { RolesService } from './roles.service';
 import { RolesController } from './roles.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Role, RoleSchema } from './schemas/role.schema';
-import { RoleService } from './service/role.service';
 import { Permission, PermissionSchema } from 'src/permissions/schemas/permission.schema';
+import { RoleService } from './service/role.service';
 
 @Module({
   controllers: [RolesController],
@@ -15,5 +15,6 @@ import { Permission, PermissionSchema } from 'src/permissions/schemas/permission
       { name: Permission.name, schema: PermissionSchema },
     ]),
   ],
+  exports: [RolesService, RoleService],
 })
 export class RolesModule { }

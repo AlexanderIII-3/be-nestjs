@@ -1,9 +1,9 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query } from '@nestjs/common';
 import { RolesService } from './roles.service';
 import { CreateRoleDto } from './dto/create-role.dto';
 import { UpdateRoleDto } from './dto/update-role.dto';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
-import { User } from 'src/decorator/customize';
+import { Public, ResponseMessage, User } from 'src/decorator/customize';
 import { IUser } from 'src/users/interface/users.interface';
 
 @Controller('roles')
@@ -21,9 +21,18 @@ export class RolesController {
     return this.rolesService.create(params);
   }
 
+  @ResponseMessage('Fetch all roles')
   @Get()
-  findAll() {
-    return this.rolesService.findAll();
+  async findAll(
+    @Query('current') page: string,
+    @Query('pageSize') limit: string,
+    @Query() qs: string
+  ) {
+    const { result, meta } = await this.rolesService.findAll(+page, +limit, qs);
+    return {
+      result,
+      meta
+    };
   }
 
   @Get(':id')

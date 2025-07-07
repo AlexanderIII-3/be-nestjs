@@ -2,17 +2,22 @@ import { IUser } from 'src/users/interface/users.interface';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateUserDto, RegisterDto, UpdateUserDto } from './dto/create-user.dto';
 import { User as UserM, UserDocument } from './schemas/user.schema';
-import { Model } from 'mongoose';
 import { InjectModel } from '@nestjs/mongoose';
 import { genSaltSync, hashSync, compareSync } from "bcryptjs";
 import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import { IResultUser } from './interface/users.interface';
 import aqp from 'api-query-params';
 import { User } from 'src/decorator/customize';
+import { USER_ROLE } from 'src/databases/sample';
+import { Role, RoleDocument } from 'src/roles/schemas/role.schema';
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectModel(UserM.name) private userModel: SoftDeleteModel<UserDocument>) { }
+  constructor(
+
+    @InjectModel(UserM.name) private userModel: SoftDeleteModel<UserDocument>,
+    @InjectModel(Role.name) private roleModel: SoftDeleteModel<RoleDocument>
+  ) { }
   hashPassword(password: string) {
 
     const salt = genSaltSync(10);
@@ -71,23 +76,22 @@ export class UsersService {
 
       throw new BadRequestException(` Email ${email} User already exists`);
 
-    } else {
-      const user = await this.userModel.create({
-        email,
-        password: hashedPassword,
-        name,
-        age,
-        role: 'USER',
-        gender,
-        address,
-
-
-      });
-
-      return user;
     }
 
+    const role = await this.roleModel.findOne({ name: USER_ROLE });
+    const user = await this.userModel.create({
+      email,
+      password: hashedPassword,
+      name,
+      age,
+      role: role?._id,
+      gender,
+      address,
+    });
+    return user;
+
   }
+
 
   async findAll(page: number, limit: number, qs: string) {
 
@@ -138,7 +142,10 @@ export class UsersService {
         email: username,
         isDeleted: false,
       })
-        .populate({ path: "role", select: { name: 1, permissions: 1 } })
+        .populate({
+          path: "role",
+          select: { name: 1 }
+        })
       if (!user) {
         throw new BadRequestException(`User with email ${username} not found`);
       }
@@ -199,7 +206,10 @@ export class UsersService {
   async findUserByRefreshToken(refreshToken: string) {
     return await this.userModel.findOne(
       { refreshToken }
-    )
+    ).populate({
+      path: "role",
+      select: { name: 1 }
+    });
   }
 
 }
