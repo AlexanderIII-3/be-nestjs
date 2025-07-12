@@ -10,7 +10,7 @@ export class UpdateRoleDto extends PartialType(CreateRoleDto) {
     description: string;
     @IsOptional()
     @IsBoolean()
-    is_active: boolean;
+    isActive: boolean;
     @IsOptional()
     @IsMongoId({ each: true })
     @IsArray()

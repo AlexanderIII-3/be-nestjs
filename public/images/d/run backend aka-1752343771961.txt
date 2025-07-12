@@ -1,0 +1,6 @@
+1,lệnh chạy:
+	- lệnh build: pnpm build
+	- lệnh clean build: pnpm clean  
+	- chạy all service: pnpm --parallel start:dev
+	- chạy 1 hoặc nhiều service: pnpm --filter auth start:dev
+	- tải thư viện: pnpm i

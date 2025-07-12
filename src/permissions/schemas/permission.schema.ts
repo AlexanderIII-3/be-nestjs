@@ -38,7 +38,7 @@ export class Permission {
     };
 
     @Prop({ default: true })
-    is_active: boolean;
+    isActive: boolean;
 
     @Prop({ type: Date })
     createdAt: Date;

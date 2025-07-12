@@ -38,13 +38,6 @@ export class CreateUserDto {
     @IsNotEmpty()
     gender?: string;
 
-    @IsNotEmpty()
-    createAt: Date;
-
-    @IsNotEmpty()
-    updateAt: Date;
-
-
 }
 export class RegisterDto {
     @IsEmail()

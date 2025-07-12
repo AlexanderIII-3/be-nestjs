@@ -52,8 +52,11 @@ export class MulterConfigService implements MulterOptionsFactory {
                 }
             }),
             fileFilter: (req, file, cb) => {
+                // Kiểm tra mime type cho file Word, Excel, PDF, ảnh, v.v.
                 if (
-                    file.mimetype.match(/(jpg|jpeg|png|text\/plain)$/i)
+                    file.mimetype.match(
+                        /(jpg|jpeg|png|gif|pdf|csv|mp4|txt|doc|docx|xlsx|application\/msword|application\/vnd\.openxmlformats-officedocument\.wordprocessingml\.document|application\/vnd\.openxmlformats-officedocument\.spreadsheetml\.sheet|application\/pdf|text\/plain)$/i
+                    )
                 ) {
                     cb(null, true);
                 } else {

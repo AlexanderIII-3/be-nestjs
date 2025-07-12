@@ -12,7 +12,7 @@ export class RoleService {
 
     async checkNameRoleExists(params: ICheckRoleExists): Promise<void> {
         let filter: FilterQuery<ICheckRoleExists> = {
-            is_active: true,
+            isActive: true,
             isDeleted: false
         };
         if (params.name) {
@@ -53,7 +53,7 @@ export class RoleService {
         for (const id of ids) {
             const existPermission = await this.permissionModel.findOne({
                 _id: id,
-                is_active: true
+                isActive: true
             }).exec();
             if (existPermission) {
                 count++;

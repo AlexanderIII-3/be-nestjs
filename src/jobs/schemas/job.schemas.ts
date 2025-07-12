@@ -68,7 +68,7 @@ export class Job {
     location: string;
 
     @Prop({ default: true })
-    is_active: boolean;
+    isActive: boolean;
 
     @Prop({ type: Date })
     createdAt: Date;

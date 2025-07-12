@@ -40,7 +40,7 @@ export class DatabasesService implements OnModuleInit {
                 await this.roleModel.insertMany([{
                     name: ADMIN_ROLE,
                     description: "Super Admin Role",
-                    is_active: true,
+                    isActive: true,
                     permissions: await this.permissionModel.find({}).select("_id").lean().exec(),
 
                 },

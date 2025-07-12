@@ -109,7 +109,7 @@ export class RolesService {
     const role = await this.roleModel.findById(
       {
         _id: id,
-        is_active: false,
+        isActive: false,
         isDeleted: false,
       },
 

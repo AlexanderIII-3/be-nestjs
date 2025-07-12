@@ -16,7 +16,7 @@ export class Role {
     description: string;
 
     @Prop({ default: true })
-    is_active: boolean;
+    isActive: boolean;
 
 
     @Prop({ type: [mongoose.Schema.Types.ObjectId], ref: Permission.name })

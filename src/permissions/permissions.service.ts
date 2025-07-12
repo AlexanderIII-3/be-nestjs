@@ -76,7 +76,7 @@ export class PermissionsService {
     await this.checkPermissionExist(params.name, params.id);
     let filter: object = {
       _id: params.id,
-      is_active: true
+      isActive: true
     }
     const exist = await this.permissionModel.findOne(filter)
 
@@ -105,7 +105,7 @@ export class PermissionsService {
   }
 
   async remove(id: string) {
-    const exist = await this.permissionModel.findOne({ _id: id, is_active: true });
+    const exist = await this.permissionModel.findOne({ _id: id, isActive: true });
     if (!exist) {
       throw new BadRequestException({
         message: 'Permission not found',

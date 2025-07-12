@@ -9,7 +9,7 @@ export class CreateRoleDto {
     @IsNotEmpty()
     @IsOptional()
     @IsBoolean()
-    is_active?: boolean;
+    isActive?: boolean;
     @IsNotEmpty()
     @IsMongoId({ each: true })
     @IsArray()
