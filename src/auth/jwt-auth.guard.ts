@@ -21,15 +21,29 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
         if (isPublic) {
             return true;
         }
-        return super.canActivate(context);
+        // Pass context to handleRequest by binding it
+        return super.canActivate(context) as any;
     }
-
-    handleRequest(err, user, info) {
+    handleRequest(err, user, info, context: ExecutionContext) {
+        const request = context.switchToHttp().getRequest();
         if (err || !user) {
             throw err || new UnauthorizedException("Token không hợp lệ");
         }
+
+        //check permissions
+        const targetMethod = request.method;
+        const targetEndpoint = request.route?.path as string;
+        const permissions = user?.permissions || [];
+        let isExist = permissions.find((item) => {
+            return targetMethod === item.method && targetEndpoint === item.apiPath;
+        });
+        if (targetEndpoint.startsWith('/api/v1/auth')) { isExist = true; }
+        if (!isExist) {
+            throw new UnauthorizedException("Bạn không có quyền truy cập vào API này");
+        }
         return user;
     }
-
-
 }
+
+
+

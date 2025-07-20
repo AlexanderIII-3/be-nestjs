@@ -1,3 +1,4 @@
+import { RolesService } from './../../roles/roles.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
 import { ExtractJwt, Strategy } from 'passport-jwt';
@@ -10,6 +11,7 @@ import { IUser } from 'src/users/interface/users.interface';
 export class JwtStrategy extends PassportStrategy(Strategy) {
     constructor(
         private configService: ConfigService,
+        private rolesService: RolesService
 
     ) {
         super({
@@ -21,11 +23,17 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
     async validate(payload: IUser) {
         const { _id, name, email, role } = payload;
+
+        const userRole = role as unknown as { _id: string, name: string };
+        const temp = (await this.rolesService.findOne({ id: userRole._id })).toObject();
+
         return {
             _id,
             name,
             email,
-            role
+            role,
+            permissions: temp.permissions ?? []
+
         };
     }
 
