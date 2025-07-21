@@ -21,6 +21,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
+    "@nestjs-modules/mailer": "1.8.1",
     "@nestjs/common": "9.4.0",
     "@nestjs/config": "^2.3.1",
     "@nestjs/core": "9.4.0",
@@ -36,10 +37,12 @@
     "cookie-parser": "^1.4.7",
     "dotenv": "16.0.3",
     "ejs": "3.1.9",
+    "handlebars": "4.7.7",
     "joi": "^17.13.3",
     "mongoose": "^7.6.11",
     "mongoose-autopopulate": "^1.1.0",
     "ms": "2.1.3",
+    "nodemailer": "6.9.3",
     "passport": "0.6.0",
     "passport-jwt": "4.0.1",
     "passport-local": "1.0.0",
@@ -92,5 +95,12 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
+  },
+  "overrides": {
+    "@nestjs-modules/mailer": {
+      "inline-css": {
+        "cheerio": "1.0.0-rc.10"
+      }
+    }
   }
 }
