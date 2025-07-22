@@ -8,11 +8,13 @@ import { SoftDeleteModel } from 'soft-delete-plugin-mongoose';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import aqp from 'api-query-params';
 import { PipelineStage } from 'mongoose';
+import { retry } from 'rxjs';
 
 
 @Injectable()
 export class SubscribersService {
-  constructor(@InjectModel(Subscriber.name) private subscriberModel: SoftDeleteModel<SubscriberDocument>) { }
+  constructor(@InjectModel(Subscriber.name)
+  private subscriberModel: SoftDeleteModel<SubscriberDocument>) { }
   async create(params: CreateSubscriberDto & { user: IUser }) {
     const { email, name, skills } = params;
     const checkExist = await this.subscriberModel.findOne({
@@ -87,9 +89,9 @@ export class SubscribersService {
     return sub;
   }
 
-  async update(params: { id: string, updateSubscriberDto: UpdateSubscriberDto, user: IUser }) {
+  async update(params: { updateSubscriberDto: UpdateSubscriberDto, user: IUser }) {
     const sub = await this.subscriberModel.findOneAndUpdate(
-      { _id: params.id, isDeleted: false },
+      { email: params.user.email },
       {
         ...params.updateSubscriberDto,
         updatedBy: {
@@ -98,11 +100,8 @@ export class SubscribersService {
         },
         updatedAt: new Date(),
       },
-      { new: true }
+      { upsert: true }
     );
-    if (!sub) {
-      throw new HttpException(`Subscriber with ID ${params.id} not found`, HttpStatus.NOT_FOUND);
-    }
     return sub;
   }
 
@@ -114,5 +113,9 @@ export class SubscribersService {
       throw new HttpException(`Subscriber with ID ${id} not found`, HttpStatus.NOT_FOUND);
     }
     return sub;
+  }
+  async getSkills(user: IUser) {
+    const { email } = user;
+    return await this.subscriberModel.findOne({ email: email, isDeleted: false }, { skills: 1 }).select('skills').lean();
   }
 }

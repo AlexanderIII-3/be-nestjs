@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
 import { AuthGuard } from '@nestjs/passport';
-import { IS_PUBLIC_KEY } from 'src/decorator/customize';
+import { IS_PUBLIC_KEY, IS_PUBLIC_PERMISSION } from 'src/decorator/customize';
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
@@ -26,6 +26,10 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     }
     handleRequest(err, user, info, context: ExecutionContext) {
         const request = context.switchToHttp().getRequest();
+        const isPublicPermission = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_PERMISSION, [
+            context.getHandler(),
+            context.getClass(),
+        ]);
         if (err || !user) {
             throw err || new UnauthorizedException("Token không hợp lệ");
         }
@@ -38,7 +42,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
             return targetMethod === item.method && targetEndpoint === item.apiPath;
         });
         if (targetEndpoint.startsWith('/api/v1/auth')) { isExist = true; }
-        if (!isExist) {
+        if (!isExist && !isPublicPermission) {
             throw new UnauthorizedException("Bạn không có quyền truy cập vào API này");
         }
         return user;

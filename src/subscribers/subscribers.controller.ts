@@ -3,7 +3,7 @@ import { SubscribersService } from './subscribers.service';
 import { CreateSubscriberDto } from './dto/create-subscriber.dto';
 import { UpdateSubscriberDto } from './dto/update-subscriber.dto';
 import { IUser } from 'src/users/interface/users.interface';
-import { ResponseMessage, User } from 'src/decorator/customize';
+import { PublicPermission, ResponseMessage, User } from 'src/decorator/customize';
 
 @Controller('subscribers')
 export class SubscribersController {
@@ -36,14 +36,13 @@ export class SubscribersController {
     return this.subscribersService.findOne(id);
   }
 
-  @Put(':id')
+  @Patch()
+  @PublicPermission()
   update(
-    @Param('id') id: string,
     @Body() updateSubscriberDto: UpdateSubscriberDto,
     @User() user: IUser
   ) {
     const params = {
-      id,
       updateSubscriberDto,
       user
     }
@@ -53,5 +52,11 @@ export class SubscribersController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.subscribersService.remove(id);
+  }
+  @Post("skills")
+  @ResponseMessage("get subscriber skills")
+  @PublicPermission()
+  getSkills(@User() user: IUser) {
+    return this.subscribersService.getSkills(user);
   }
 }

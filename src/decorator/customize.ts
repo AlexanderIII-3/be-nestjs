@@ -17,3 +17,7 @@ export const ResponseMessage = (message: string) =>
 
 export const SKIP_TRANSFORM_KEY = 'skipTransform';
 export const SkipInterceptor = () => SetMetadata(SKIP_TRANSFORM_KEY, true);
+
+export const IS_PUBLIC_PERMISSION = 'isPublicPermission';
+export const PublicPermission = () =>
+    SetMetadata(IS_PUBLIC_PERMISSION, true);
