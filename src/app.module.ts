@@ -19,11 +19,18 @@ import { DatabasesModule } from './databases/databases.module';
 import { SubscribersModule } from './subscribers/subscribers.module';
 import { MailModule } from './mail/mail.module';
 import { ScheduleModule } from '@nestjs/schedule';
-
+import { ThrottlerModule } from '@nestjs/throttler';
+import { ApiTags } from '@nestjs/swagger';
+import { HealthModule } from './health/health.module';
 @Module({
   imports: [
     MongooseModule.forRootAsync({
       imports: [
+        ThrottlerModule.forRoot({
+          ttl: 60,
+          limit: 5,
+        },
+        ),
         ScheduleModule.forRoot(),
         ConfigModule.forRoot({
           validationSchema: Joi.object({
@@ -77,15 +84,15 @@ import { ScheduleModule } from '@nestjs/schedule';
 
     SubscribersModule,
 
-    MailModule
+    MailModule,
+
+    HealthModule
 
   ],
 
   controllers: [AppController, AuthController],
   providers: [
     AppService,
-
-
   ],
 })
 export class AppModule { }

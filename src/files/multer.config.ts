@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
+import { BadRequestException, HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import { MulterModuleOptions, MulterOptionsFactory } from "@nestjs/platform-express";
 import fs from "fs";
 import { diskStorage } from "multer";
@@ -49,22 +49,26 @@ export class MulterConfigService implements MulterOptionsFactory {
 
                     let finalName = `${baseName}-${Date.now()}${extName}`
                     cb(null, finalName)
-                }
+                },
+
             }),
             fileFilter: (req, file, cb) => {
-                // Kiểm tra mime type cho file Word, Excel, PDF, ảnh, v.v.
-                if (
-                    file.mimetype.match(
-                        /(jpg|jpeg|png|gif|pdf|csv|mp4|txt|doc|docx|xlsx|application\/msword|application\/vnd\.openxmlformats-officedocument\.wordprocessingml\.document|application\/vnd\.openxmlformats-officedocument\.spreadsheetml\.sheet|application\/pdf|text\/plain)$/i
-                    )
-                ) {
+                const allowedFileTypes = ['jpg', 'jpeg', 'png', 'gif', 'pdf', 'doc', 'docx'];
+                const fileExtension = file.originalname.split('.').pop().toLowerCase();
+                const isValidFileType = allowedFileTypes.includes(fileExtension);
+
+                if (!isValidFileType) {
+                    cb(new HttpException('Invalid file type', HttpStatus.UNPROCESSABLE_ENTITY), null);
+                } else
                     cb(null, true);
-                } else {
-                    cb(new BadRequestException('Invalid file type'), false);
-                }
+            },
+            limits: {
+                fileSize: 1024 * 1024 * 1 // 1MB
             }
         };
     }
+
+
 }
 
 

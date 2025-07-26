@@ -6,7 +6,8 @@ import { Public, ResponseMessage, User } from 'src/decorator/customize';
 import { AuthGuard } from '@nestjs/passport';
 import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 import { IUser } from 'src/users/interface/users.interface';
-
+import { ApiTags } from '@nestjs/swagger';
+@ApiTags('resumes')
 @Controller('resumes')
 export class ResumesController {
   constructor(private readonly resumesService: ResumesService) { }

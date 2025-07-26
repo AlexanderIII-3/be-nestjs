@@ -1,4 +1,5 @@
 import { Prop } from '@nestjs/mongoose';
+import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsString, IsInt, IsEmail, IsEmpty, IsNotEmpty, IsNotEmptyObject, IsObject, ValidateNested, IsMongoId } from 'class-validator';
 import mongoose from 'mongoose';
@@ -85,5 +86,20 @@ export class UpdateUserDto {
     createAt: Date;
     updateAt: Date;
 
+
+}
+export class UserLoginDto {
+    @IsString()
+    @IsNotEmpty()
+    @ApiProperty({ example: 'thanhkun', description: 'username' })
+    readonly username: string;
+
+    @IsString()
+    @IsNotEmpty()
+    @ApiProperty({
+        example: '123456',
+        description: 'password',
+    })
+    readonly password: string;
 
 }
