@@ -8,11 +8,10 @@ import { UsersModule } from 'src/users/users.module';
 @Module({
   imports: [
     UsersModule,
-    MongooseModule.forFeature([{ name: Resume.name, schema: ResumeSchema }])
+    MongooseModule.forFeature([{ name: Resume.name, schema: ResumeSchema }]),
   ],
   controllers: [ResumesController],
   providers: [ResumesService],
   exports: [ResumesService],
-
 })
-export class ResumesModule { }
+export class ResumesModule {}

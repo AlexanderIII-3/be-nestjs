@@ -12,36 +12,36 @@ import mongoose from 'mongoose';
 
 @Injectable()
 export class ResumesService {
-  constructor(private usersService: UsersService,
-    @InjectModel(Resume.name) private resumeModel: SoftDeleteModel<ResumeDocument>) { }
-
+  constructor(
+    private usersService: UsersService,
+    @InjectModel(Resume.name)
+    private resumeModel: SoftDeleteModel<ResumeDocument>,
+  ) {}
 
   async create(createResumeDto: CreateResumeDto, user: IUser) {
     if (!user) {
-      throw new BadRequestException("User not found");
+      throw new BadRequestException('User not found');
     }
     const set = {
       ...createResumeDto,
       userId: user._id,
       email: user.email,
-      status: "PENDING",
+      status: 'PENDING',
       history: [
         {
-          status: "PENDING",
+          status: 'PENDING',
           updatedAt: new Date(),
           updatedBy: {
             id: user._id,
             email: user.email,
-          }
-        }
+          },
+        },
       ],
       createdBy: {
         id: user._id,
         email: user.email,
-      }
-
-
-    }
+      },
+    };
     const newResume = await this.resumeModel.create(set);
     return {
       id: newResume._id,
@@ -58,7 +58,8 @@ export class ResumesService {
     const limitDefault = limit || 10;
     const totalItems = await this.resumeModel.countDocuments(filter);
     const totalPages = Math.ceil(totalItems / limitDefault);
-    const resumes = await this.resumeModel.find(filter)
+    const resumes = await this.resumeModel
+      .find(filter)
       .skip(offset)
       .limit(limitDefault)
       .sort(sort as any)
@@ -77,21 +78,19 @@ export class ResumesService {
   }
 
   async findOne(id: string) {
-
     const resume = await this.resumeModel.findById(id);
     if (!resume) {
-      throw new BadRequestException("Resume not found");
+      throw new BadRequestException('Resume not found');
     }
     return resume;
   }
 
   async update(id: string, status: string, user: IUser) {
-
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      throw new BadRequestException("Resume not found");
+      throw new BadRequestException('Resume not found');
     }
-    if (!["PENDING", "APPROVED", "REJECTED"].includes(status)) {
-      throw new BadRequestException("Invalid status");
+    if (!['PENDING', 'APPROVED', 'REJECTED'].includes(status)) {
+      throw new BadRequestException('Invalid status');
     }
     const updated = await this.resumeModel.updateOne(
       { _id: id, isDeleted: false },
@@ -105,25 +104,26 @@ export class ResumesService {
         $push: {
           history: {
             status: status,
-            updatedAt: new Date,
+            updatedAt: new Date(),
             updatedBy: {
               id: user._id,
               email: user.email,
             },
           },
-
-        }
-      }
-    )
+        },
+      },
+    );
 
     return updated;
-
   }
 
   async remove(id: string) {
-    const resume = await this.resumeModel.findOne({ _id: id, isDeleted: false });
+    const resume = await this.resumeModel.findOne({
+      _id: id,
+      isDeleted: false,
+    });
     if (!resume) {
-      throw new BadRequestException("Resume not found");
+      throw new BadRequestException('Resume not found');
     }
     return this.resumeModel.softDelete({ _id: id });
   }
@@ -132,22 +132,22 @@ export class ResumesService {
 
     const userApply = await this.usersService.findOne(userId);
     if (!userApply) {
-      throw new BadRequestException("User not found");
+      throw new BadRequestException('User not found');
     }
-    const resumes = await this.resumeModel.find({ userId: user._id, isDeleted: false })
-      .sort("-createdAt")
+    const resumes = await this.resumeModel
+      .find({ userId: user._id, isDeleted: false })
+      .sort('-createdAt')
       .populate([
         {
-          path: "companyId",
-          select: { name: 1 }
+          path: 'companyId',
+          select: { name: 1 },
         },
         {
-          path: "jobId",
-          select: { name: 1 }
-        }
+          path: 'jobId',
+          select: { name: 1 },
+        },
       ]);
 
     return resumes;
   }
 }
-
