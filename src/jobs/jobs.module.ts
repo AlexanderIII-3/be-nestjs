@@ -8,6 +8,6 @@ import { MongooseModule } from '@nestjs/mongoose';
   imports: [MongooseModule.forFeature([{ name: Job.name, schema: JobSchema }])],
 
   controllers: [JobsController],
-  providers: [JobsService]
+  providers: [JobsService],
 })
-export class JobsModule { }
+export class JobsModule {}

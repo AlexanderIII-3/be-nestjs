@@ -10,40 +10,37 @@ import aqp from 'api-query-params';
 
 @Injectable()
 export class JobsService {
-  constructor(@InjectModel(Job.name) private jobModel: SoftDeleteModel<JobDocument>) { }
+  constructor(
+    @InjectModel(Job.name) private jobModel: SoftDeleteModel<JobDocument>,
+  ) {}
 
   async create(createJobDto: CreateJobDto, user: IUser) {
     try {
       const jobExist = await this.jobModel.findOne({
-        name: createJobDto.name
-      })
+        name: createJobDto.name,
+      });
       if (jobExist) {
         throw new BadRequestException('Job already exists');
       } else {
-
+        // eslint-disable-next-line prefer-const
         let data = await this.jobModel.create({
           ...createJobDto,
           createdBy: {
             id: user._id,
             email: user.email,
           },
-
-        })
+        });
         return {
           id: data._id,
-          time_create: data.createdAt
+          time_create: data.createdAt,
         };
       }
-
-
     } catch (error) {
       console.error('Error creating job:', error);
     }
-
   }
 
   async findAll(page: number, limit: number, qs: any) {
-
     const { filter, sort, projection, population } = aqp(qs);
     delete filter.current;
     delete filter.pageSize;
@@ -54,7 +51,8 @@ export class JobsService {
     const totalItems = await this.jobModel.countDocuments(filter);
     const totalPages = Math.ceil(totalItems / defaultLimit);
 
-    const jobs = await this.jobModel.find(filter)
+    const jobs = await this.jobModel
+      .find(filter)
       .skip(offset)
       .limit(defaultLimit)
       .sort(sort as any)
@@ -66,18 +64,18 @@ export class JobsService {
         current: page,
         pageSize: defaultLimit,
         pages: totalPages,
-        total: totalItems
+        total: totalItems,
       },
-      result: jobs
+      result: jobs,
     };
 
-    return
+    return;
   }
 
   async findOne(id: string) {
     const filter: FilterQuery<any> = {
       _id: id,
-      isDeleted: false
+      isDeleted: false,
     };
     const job = await this.jobModel.findOne(filter);
     if (!job) {
@@ -95,10 +93,8 @@ export class JobsService {
           id: user._id,
           email: user.email,
         },
-      }
+      },
     );
-
-
   }
 
   async remove(id: string, user: IUser) {
@@ -109,10 +105,9 @@ export class JobsService {
     if (id) {
       filter._id = id;
     }
-    const job = await this.jobModel.updateOne(
-      filter,
-      { deletedBy: { id: user._id, email: user.email } }
-    );
+    const job = await this.jobModel.updateOne(filter, {
+      deletedBy: { id: user._id, email: user.email },
+    });
     if (!job) {
       throw new BadRequestException(`Job not found by id: ${id}`);
     }

@@ -9,32 +9,31 @@ import { IUser } from 'src/users/interface/users.interface';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
-    constructor(
-        private configService: ConfigService,
-        private rolesService: RolesService
+  constructor(
+    private configService: ConfigService,
+    private rolesService: RolesService,
+  ) {
+    super({
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      ignoreExpiration: false,
+      secretOrKey: configService.get<string>('JWT_ACCESS_TOKEN_SECRET'),
+    });
+  }
 
-    ) {
-        super({
-            jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-            ignoreExpiration: false,
-            secretOrKey: configService.get<string>('JWT_ACCESS_TOKEN_SECRET'),
-        });
-    }
+  async validate(payload: IUser) {
+    const { _id, name, email, role } = payload;
 
-    async validate(payload: IUser) {
-        const { _id, name, email, role } = payload;
+    const userRole = role as unknown as { _id: string; name: string };
+    const temp = (
+      await this.rolesService.findOne({ id: userRole._id })
+    ).toObject();
 
-        const userRole = role as unknown as { _id: string, name: string };
-        const temp = (await this.rolesService.findOne({ id: userRole._id })).toObject();
-
-        return {
-            _id,
-            name,
-            email,
-            role,
-            permissions: temp.permissions ?? []
-
-        };
-    }
-
+    return {
+      _id,
+      name,
+      email,
+      role,
+      permissions: temp.permissions ?? [],
+    };
+  }
 }
